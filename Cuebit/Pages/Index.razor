@@ -6,7 +6,7 @@
         Lets Break Causality!
     </h2>
     <br/>
-    <button @onclick="BigTicker" disabled="@tickDisabled">Run Tick</button> <button @onclick="Reset">Reset</button>
+    <button @onclick="BigTicker" disabled="@tickDisabled">Run Tick</button> <button @onclick="Reset">Reset</button> RNG Seed: <input type="text" @bind="RngSeed"/> <button @onclick="RandomizeSeed">Randomize and Reset</button> 
     <br/>
     <br/>
     <h3>
@@ -145,6 +145,8 @@
 
 @code{
 
+    int RngSeed = Environment.TickCount;
+    Random Rng = new();
     List<TickData> SystemData { get; set; } = new();
     TickData BobsLastTurn = null;
     Clock Clock { get; set; } = new();
@@ -162,19 +164,22 @@
 
     protected override void OnInitialized()
     {
+        RngSeed = Rng.Next();
         Reset();
     }
 
     void Reset()
     {
+        Rng = new(RngSeed);
+        
         ActionLog = new List<string>();
         SystemData = new List<TickData>();
         Clock = new Clock();
 
-        Alice0 = new Qubit();
-        Alice1 = new Qubit();
-        Bob0 = new Qubit();
-        Bob1 = new Qubit();
+        Alice0 = new Qubit(Rng);
+        Alice1 = new Qubit(Rng);
+        Bob0 = new Qubit(Rng);
+        Bob1 = new Qubit(Rng);
 
         Alice0.EntangledQubit = Bob0;
         Bob0.EntangledQubit = Alice0;
@@ -194,8 +199,15 @@
         Alice1.MeasureZ();
         Alice1.MeasureX();
         Alice1.MeasureY();
+
     }
 
+    void RandomizeSeed()
+    {
+        RngSeed = new Random().Next();
+        Reset();
+    }
+    
     async Task Log(string msg)
     {
         ActionLog.Add(msg);
