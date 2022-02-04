@@ -27,6 +27,6 @@
 
 .log {
     overflow-y: scroll;
-    max-height: 500px;
-    height: 500px;
+    max-height: 350px;
+    height: 350px;
 }
