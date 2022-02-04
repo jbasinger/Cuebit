@@ -267,6 +267,7 @@
     async Task InitialTick()
     {
         await Log($"Initial tick!");
+        await Log("Alice wants to send Bob a 1");
         await Log("Alice only reads her Z bits on the initial tick");
         Alice0.MeasureZ();
         Alice1.MeasureZ();
