@@ -1,0 +1,7 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=54493d3f_002D1d0f_002D497d_002D8e09_002D039ebc63ba25/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AliceShouldResetOtherAxis" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::AB7B24D7-08D4-47F0-B272-12F55C1B4B00::net6.0::Cuebit.UnitTests.Tests&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::AB7B24D7-08D4-47F0-B272-12F55C1B4B00::net6.0::Cuebit.UnitTests.ClockTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

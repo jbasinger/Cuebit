@@ -1,0 +1,321 @@
+﻿@page "/"
+@using Cuebit.Models
+<div>
+    <h2>
+        Lets Break Causality!
+    </h2>
+    <button @onclick="BigTicker" disabled="@tickDisabled">Run Tick</button> <button @onclick="Reset">Reset</button>
+    <h3>
+        Clock Graph
+    </h3>
+    <table>
+        <tr>
+            <th>
+                Tick
+            </th>
+            @foreach (var tick in SystemData)
+            {
+                <th>
+                    @tick.ClockStep
+                </th>
+            }
+        </tr>
+        <tr>
+            <td>
+                A0X
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @tick.A0X
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>
+                A0Z
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @tick.A0Z
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>
+                A1X
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @tick.A1X
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>
+                A1Z
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @tick.A1Z
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>
+                CLK
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @if (tick.ClockValue == 1)
+                    {
+                        <span>&sqcap;</span>
+                    }
+                    else
+                    {
+                        <span>&sqcup;</span>
+                    }
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>
+                B0X
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @tick.B0X
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>
+                B0Z
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @tick.B0Z
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>
+                B1X
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @tick.B1X
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>
+                B1Z
+            </td>
+            @foreach (var tick in SystemData)
+            {
+                <td>
+                    @tick.B1Z
+                </td>
+            }
+        </tr>
+    </table>
+    <h3>
+        Tick Log
+    </h3>
+    <table>
+        @foreach (var log in ActionLog)
+        {
+            <tr>
+                <td>
+                    @log
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+@code{
+
+    List<TickData> SystemData { get; set; } = new();
+    TickData BobsLastTurn = null;
+    Clock Clock { get; set; } = new();
+    Qubit Alice0 = new();
+    Qubit Alice1 = new();
+    Qubit Bob0 = new();
+    Qubit Bob1 = new();
+
+    bool AliceSetTheReadyBit = false;
+    bool AliceSetTheValueBit = false;
+    bool BobReadTheReadyBit = false;
+
+    List<string> ActionLog { get; set; } = new();
+    bool tickDisabled;
+
+    protected override void OnInitialized()
+    {
+        Reset();
+    }
+
+    void Reset()
+    {
+        ActionLog = new List<string>();
+        SystemData = new List<TickData>();
+        Clock = new Clock();
+
+        Alice0 = new Qubit();
+        Alice1 = new Qubit();
+        Bob0 = new Qubit();
+        Bob1 = new Qubit();
+
+        Alice0.EntangledQubit = Bob0;
+        Bob0.EntangledQubit = Alice0;
+
+        Alice1.EntangledQubit = Bob1;
+        Bob1.EntangledQubit = Alice1;
+
+        AliceSetTheReadyBit = false;
+        AliceSetTheValueBit = false;
+        BobReadTheReadyBit = false;
+        tickDisabled = false;
+        
+        //Random starting points
+        Alice0.MeasureZ();
+        Alice0.MeasureX();
+        Alice0.MeasureY();
+        Alice1.MeasureZ();
+        Alice1.MeasureX();
+        Alice1.MeasureY();
+    }
+
+    void Log(string msg)
+    {
+        ActionLog.Add(msg);
+    }
+
+    void StoreNewData()
+    {
+        var data = new TickData
+        {
+            A0X = Alice0.X,
+            A0Z = Alice0.Z,
+            A1X = Alice1.X,
+            A1Z = Alice1.Z,
+            B0X = Bob0.X,
+            B0Z = Bob0.Z,
+            B1X = Bob1.X,
+            B1Z = Bob1.Z,
+            ClockStep = Clock.Step,
+            ClockValue = Clock.Value
+        };
+
+        if (Clock.Step == 0 || Clock.Value == 0)
+            BobsLastTurn = data;
+        
+        SystemData.Add(data);
+    }
+
+    void BigTicker()
+    {
+        // The important thing here is the order in which things are measured
+        // A0X, A0Z, A1X, A1Z, B0X, B0Z, B1X, B1Z then tick
+
+        Log("-----------");
+        Log($"Starting tick {Clock.Step}");
+
+        if (Clock.Step == 0)
+        {
+            InitialTick();
+        }
+        else if (Clock.Value == 1)
+        {
+            Log("Alice's turn");
+            MeasureAlice();
+        }
+        else
+        {
+            Log("Bob's turn");
+            MeasureBob();
+        }
+
+        StoreNewData();
+        Clock.Tick();
+        Log("End of turn");
+    }
+
+    void InitialTick()
+    {
+        Log($"Initial tick!");
+        Log("Alice only reads her Z bits on the initial tick");
+        Alice0.MeasureZ();
+        Alice1.MeasureZ();
+    }
+
+    void MeasureAlice()
+    {
+        if (!AliceSetTheValueBit)
+        {
+            AliceThrashForValueBit();
+            return;
+        }
+        AliceThrashForReadyBit();
+    }
+
+    void AliceThrashForValueBit()
+    {
+        //Lets assume Alice wants to send a 1.
+        //We need to get the A1Z to be a 1
+        //Alice is going to measure X to reset Z, then measure Z for N ticks until it's the bit she wants.
+        Log("Alice is thrashing her Value bit");
+        Alice1.MeasureX();
+        Alice1.MeasureZ();
+
+        if (Alice1.Z == 0) //The value we want is opposite of what we want to send Bob
+        {
+            Log("Alice finally set her Value bit to what she wanted");
+            AliceSetTheValueBit = true;
+        }
+    }
+
+    void AliceThrashForReadyBit()
+    {
+        Log("Alice is thrashing the Ready bit");
+        var lastReadyBit = Alice0.Z;
+
+        Alice0.MeasureX();
+        Alice0.MeasureZ();
+
+        if (Alice0.Z != lastReadyBit)
+        {
+            Log("Alice finally swapped the Ready bit, telling Bob the value is ready");
+            AliceSetTheReadyBit = true;
+        }
+    }
+
+    void MeasureBob()
+    {
+        var lastReadyBit = BobsLastTurn.B0Z;
+        Bob0.MeasureZ();
+
+        if (Bob0.Z != lastReadyBit)
+        {
+            Log("Bob's ready bit changed! Lets read data!");
+            BobReadTheReadyBit = true;
+            Bob1.MeasureZ();
+            tickDisabled = true;
+            Log($"We did it! Bob measured {Bob1.Z}");
+            Log("-----------");
+        }
+        else
+        {
+            Log("Bob's ready bit didn't change");
+        }
+    }
+}
