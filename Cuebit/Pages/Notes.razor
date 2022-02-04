@@ -1,0 +1,46 @@
+@page "/Notes"
+<h3>Notes, Assumptions, Etc...</h3>
+<ul>
+    <li>
+        Both Alice and Bob are an arbitrary distance from one another. It can be infinity lightyears.
+    </li>
+    <li>
+        Alice and Bob both have two entangled qubits, 0 and 1. Alice measuring axis Z of qubit 0 forces Bob's qubit 0
+        to read the opposite of Alice's on axis Z.
+    </li>
+    <li>
+        Alice and Bob have perfectly syncronized clocks and settled ahead of time when to start measuring.
+    </li>
+    <li>
+        Alice always operates first, on CLK HIGH, Bob operates on CLK LOW
+    </li>
+    <li>
+        The grey'd out values on the opposite person's graph indicate what their measurements would be at that point in
+        time, but does not mean they actually measured it.
+    </li>
+    <li>
+        It is assumed that "thrashing" a qubit will not give the same state an infinite times in a row, although it is technically possible.
+    </li>
+</ul>
+<p>
+    The general idea is that Bob only ever measures the Z axis of his qubits. Alice uses the X axis of her qubits to
+    "reset" the Z-axis to give her a 50/50 shot of getting the value she wants on it. If the Z turns out to be what she
+    does not want on a particular qubit, she measures X to "reset" it and try again. This operation of measurment to try
+    again I'm calling "thrashing".
+</p>
+<p>
+    First, Alice is going to "thrash" her qubit 1 to make sure the Z value of it is what she wants to send. Then Alice
+    will thrash her qubit 0 until the Z axis is opposite of what it was, so that when Bob goes next, he knows that his
+    other qubit is ready with the new value.
+</p>
+<p>
+    Because Alice measured Z first, and Bob knows this, he can read Z to know what Alice got on his initial turn.
+    He can then read the Z of his qubit 0 every turn until it changes. This change tells him that the correct bit to
+    read is on his qubit 1 and can read that value.
+</p>
+<p>
+    Alice simply needs to thrash her value bit again to get the value she wants to send next and continue the loop forever.
+</p>
+@code {
+    
+}
