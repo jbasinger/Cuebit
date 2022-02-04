@@ -8,6 +8,7 @@
     <base href="/" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
+    <link href="css/stuff.css" rel="stylesheet" />
     <link href="Cuebit.styles.css" rel="stylesheet" />
     <link href="//fonts.googleapis.com/css?family=Source+Code+Pro:300&amp;subset=latin,latin-ext" rel="stylesheet" type="text/css">
 </head>
@@ -22,7 +23,12 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
-        
+        function scrollLog(){
+            window.setTimeout(()=>{
+                const log = document.getElementById("tick-log");
+                log.scrollTop=log.scrollHeight;    
+            },0);
+        }
     </script>
 </body>
 

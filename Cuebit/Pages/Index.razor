@@ -1,14 +1,18 @@
 ﻿@page "/"
 @using Cuebit.Models
+@inject IJSRuntime JsRuntime
 <div>
     <h2>
         Lets Break Causality!
     </h2>
+    <br/>
     <button @onclick="BigTicker" disabled="@tickDisabled">Run Tick</button> <button @onclick="Reset">Reset</button>
+    <br/>
+    <br/>
     <h3>
         Clock Graph
     </h3>
-    <table>
+    <table class="graph">
         <tr>
             <th>
                 Tick
@@ -21,125 +25,122 @@
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 A0X
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
+                <td class="@(tick.ClockValue == 1 ? "" : "not-my-turn")">
                     @tick.A0X
                 </td>
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 A0Z
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
+                <td class="@(tick.ClockValue == 1 ? "" : "not-my-turn")">
                     @tick.A0Z
                 </td>
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 A1X
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
+                <td class="@(tick.ClockValue == 1 ? "" : "not-my-turn")">
                     @tick.A1X
                 </td>
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 A1Z
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
+                <td class="@(tick.ClockValue == 1 ? "" : "not-my-turn")">
                     @tick.A1Z
                 </td>
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 CLK
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
-                    @if (tick.ClockValue == 1)
-                    {
-                        <span>&sqcap;</span>
-                    }
-                    else
-                    {
-                        <span>&sqcup;</span>
-                    }
+                <td class="@(tick.ClockValue == 1 ? "clock-up" : "clock-down")">
+                    &nbsp;
                 </td>
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 B0X
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
+                <td class="@(tick.ClockValue == 0 ? "" : "not-my-turn")">
                     @tick.B0X
                 </td>
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 B0Z
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
+                <td class="@(tick.ClockValue == 0 ? "" : "not-my-turn")">
                     @tick.B0Z
                 </td>
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 B1X
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
+                <td class="@(tick.ClockValue == 0 ? "" : "not-my-turn")">
                     @tick.B1X
                 </td>
             }
         </tr>
         <tr>
-            <td>
+            <th>
                 B1Z
-            </td>
+            </th>
             @foreach (var tick in SystemData)
             {
-                <td>
+                <td class="@(tick.ClockValue == 0 ? "" : "not-my-turn")">
                     @tick.B1Z
                 </td>
             }
         </tr>
     </table>
+    <br/>
     <h3>
         Tick Log
     </h3>
-    <table>
-        @foreach (var log in ActionLog)
-        {
-            <tr>
-                <td>
-                    @log
-                </td>
-            </tr>
-        }
-    </table>
+    <div class="log" id="tick-log">
+        <table>
+            @foreach (var log in ActionLog)
+            {
+                <tr>
+                    <td>
+                        @log
+                    </td>
+                </tr>
+            }
+        </table>    
+    </div>
+    
 </div>
 
 @code{
@@ -195,9 +196,10 @@
         Alice1.MeasureY();
     }
 
-    void Log(string msg)
+    async Task Log(string msg)
     {
         ActionLog.Add(msg);
+        await JsRuntime.InvokeVoidAsync("scrollLog");
     }
 
     void StoreNewData()
@@ -222,71 +224,71 @@
         SystemData.Add(data);
     }
 
-    void BigTicker()
+    async Task BigTicker()
     {
         // The important thing here is the order in which things are measured
         // A0X, A0Z, A1X, A1Z, B0X, B0Z, B1X, B1Z then tick
 
-        Log("-----------");
-        Log($"Starting tick {Clock.Step}");
+        await Log("-----------");
+        await Log($"Starting tick {Clock.Step}");
 
         if (Clock.Step == 0)
         {
-            InitialTick();
+            await InitialTick();
         }
         else if (Clock.Value == 1)
         {
-            Log("Alice's turn");
-            MeasureAlice();
+            await Log("Alice's turn");
+            await MeasureAlice();
         }
         else
         {
-            Log("Bob's turn");
-            MeasureBob();
+            await Log("Bob's turn");
+            await MeasureBob();
         }
 
         StoreNewData();
         Clock.Tick();
-        Log("End of turn");
+        await Log("End of turn");
     }
 
-    void InitialTick()
+    async Task InitialTick()
     {
-        Log($"Initial tick!");
-        Log("Alice only reads her Z bits on the initial tick");
+        await Log($"Initial tick!");
+        await Log("Alice only reads her Z bits on the initial tick");
         Alice0.MeasureZ();
         Alice1.MeasureZ();
     }
 
-    void MeasureAlice()
+    async Task MeasureAlice()
     {
         if (!AliceSetTheValueBit)
         {
-            AliceThrashForValueBit();
+            await AliceThrashForValueBit();
             return;
         }
-        AliceThrashForReadyBit();
+        await AliceThrashForReadyBit();
     }
 
-    void AliceThrashForValueBit()
+    async Task AliceThrashForValueBit()
     {
         //Lets assume Alice wants to send a 1.
         //We need to get the A1Z to be a 1
         //Alice is going to measure X to reset Z, then measure Z for N ticks until it's the bit she wants.
-        Log("Alice is thrashing her Value bit");
+        await Log("Alice is thrashing her Value bit");
         Alice1.MeasureX();
         Alice1.MeasureZ();
 
         if (Alice1.Z == 0) //The value we want is opposite of what we want to send Bob
         {
-            Log("Alice finally set her Value bit to what she wanted");
+            await Log("Alice finally set her Value bit to what she wanted");
             AliceSetTheValueBit = true;
         }
     }
 
-    void AliceThrashForReadyBit()
+    async Task AliceThrashForReadyBit()
     {
-        Log("Alice is thrashing the Ready bit");
+        await Log("Alice is thrashing the Ready bit");
         var lastReadyBit = Alice0.Z;
 
         Alice0.MeasureX();
@@ -294,28 +296,27 @@
 
         if (Alice0.Z != lastReadyBit)
         {
-            Log("Alice finally swapped the Ready bit, telling Bob the value is ready");
+            await Log("Alice finally swapped the Ready bit, telling Bob the value is ready");
             AliceSetTheReadyBit = true;
         }
     }
 
-    void MeasureBob()
+    async Task MeasureBob()
     {
         var lastReadyBit = BobsLastTurn.B0Z;
         Bob0.MeasureZ();
 
         if (Bob0.Z != lastReadyBit)
         {
-            Log("Bob's ready bit changed! Lets read data!");
+            await Log("Bob's ready bit changed! Lets read data!");
             BobReadTheReadyBit = true;
             Bob1.MeasureZ();
             tickDisabled = true;
-            Log($"We did it! Bob measured {Bob1.Z}");
-            Log("-----------");
+            await Log($"We did it! Bob measured {Bob1.Z}");
         }
         else
         {
-            Log("Bob's ready bit didn't change");
+            await Log("Bob's ready bit didn't change");
         }
     }
 }
