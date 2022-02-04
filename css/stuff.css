@@ -1,0 +1,32 @@
+.graph {
+    text-align: center;
+}
+.graph th {
+    width: 50px;
+    font-weight: bold;
+}
+
+.graph td {
+    width: 50px;
+}
+
+.not-my-turn {
+    opacity: 30%;
+}
+
+.clock-up{
+    border-left: 1px solid black;
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+}
+.clock-down{
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+}
+
+.log {
+    overflow-y: scroll;
+    max-height: 500px;
+    height: 500px;
+}
