@@ -31,7 +31,9 @@ jobs:
           # Optional SDK version(s) to use. If not provided, will install global.json version when available. Examples: 2.2.104, 3.1, 3.1.x
           dotnet-version: 6.0.100
       - name: Publish .NET Core Project
-        run: dotnet publish Cuebit.csproj -c Release -o release --nologo
+        run: dotnet publish Cuebit/Cuebit.csproj -c Release -o release --nologo
+      - name: Change base-tag in index.html from / to Cuebit
+        run: sed -i 's/<base href="\/" \/>/<base href="\/Cuebit\/" \/>/g' release/wwwroot/index.html
       - name: Commit wwwroot to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
