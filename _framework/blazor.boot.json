@@ -7,7 +7,7 @@
   "linkerEnabled": true,
   "resources": {
     "assembly": {
-      "Cuebit.dll": "sha256-HFAl0Dlo13nK6LCYi2cz01J0dl6uZ2wgZwIHbiWJUaY=",
+      "Cuebit.dll": "sha256-mAbo+HsdcKQsY\/tvWP07j\/kZizlPj0MfIbRgjjQZjCI=",
       "Microsoft.AspNetCore.Components.dll": "sha256-7E4dRmNv9uvSUOiDDoDUY+ByiJ307Y5YgMe7zMZ6GS8=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-LxZ7HJ8eLJ8fbfDHpXkGb9VhtdUfHxfLq7a9SmRxCiM=",
       "Microsoft.AspNetCore.Components.WebAssembly.dll": "sha256-Ph2ZOl\/LOY2cCUG\/S2iA61YUWIsDlcAHFxzdTG43rPw=",
